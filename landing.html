@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.0.4/tailwind.css" integrity="sha512-Ckn4CAb+0NnY8EbK/70Iqfpclu99CInrJAHCsAjK0oOeO+yddkkCJGQ0cgtvr5obJndJ1jm2HjMGoobpk11uTQ==" crossorigin="anonymous" />
     <title>Coming Soon</title>
 </head>
-<body>
+<body x-data="form()">
 <div class="flex flex-wrap w-full h-screen">
     <div class="relative w-full h-full md:w-1/2">
         <div class="p-12">
@@ -23,12 +23,46 @@
             </h1>
             <div class="static pt-24 -translate-y-1/2 md:absolute md:top-1/2 md:transform md:w-1/2 md:pt-0">
                 <h2 class="text-3xl font-bold md:text-6xl">We'll Be Back Soon!</h2>
-                <p class="mt-6">We are preparing something amazing and exciting for you. Special surprise for our subscribers
+                <p class="mt-6">We are preparing something amazing and exciting for you. Special surprise for our
+                    subscribers
                     only.
                 </p>
-                <div class="mt-6">
-                    <input type="email" class="w-full py-2 mb-5 text-sm font-light border-b border-black focus:outline-none" placeholder="Email Address*">
-                    <button class="px-4 py-2 transition border border-black hover:bg-black hover:text-white">Notify Me</button>
+                <div>
+                    <input x-model="subscription"
+                           type="text"
+                           class="w-full py-2 mb-5 text-sm font-light border-b border-black focus:outline-none mb-0"
+                           autocomplete="email"
+                           placeholder="Email Address*">
+                    <div x-show="error.length" class="flex">
+                        <span x-text="error" class="text-red-600 text-xs mb-4 inline-block"></span>
+                    </div>
+                    <button
+                            class="w-32 h-12 items-center justify-center inline-flex transition border border-black hover:bg-black hover:text-white outline-none active:outline-none focus:outline-none"
+                            x-on:click="submitForm"
+                    >
+                        <span x-show="!loading">Notify Me</span>
+
+                        <span x-show="loading">
+                            <svg width="45" height="45" viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg"
+                                 stroke="#000">
+    <g fill="none" fill-rule="evenodd" transform="translate(1 1)" stroke-width="2">
+        <circle cx="22" cy="22" r="6" stroke-opacity="0">
+            <animate attributeName="r" begin="1.5s" dur="3s" values="6;22" calcMode="linear" repeatCount="indefinite"/>
+            <animate attributeName="stroke-opacity" begin="1.5s" dur="3s" values="1;0" calcMode="linear" repeatCount="indefinite"/>
+            <animate attributeName="stroke-width" begin="1.5s" dur="3s" values="2;0" calcMode="linear" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="22" cy="22" r="6" stroke-opacity="0">
+            <animate attributeName="r" begin="3s" dur="3s" values="6;22" calcMode="linear" repeatCount="indefinite"/>
+            <animate attributeName="stroke-opacity" begin="3s" dur="3s" values="1;0" calcMode="linear" repeatCount="indefinite"/>
+            <animate attributeName="stroke-width" begin="3s" dur="3s" values="2;0" calcMode="linear" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="22" cy="22" r="8">
+            <animate attributeName="r" begin="0s" dur="1.5s" values="6;1;2;3;4;5;6" calcMode="linear" repeatCount="indefinite"/>
+        </circle>
+    </g>
+</svg>
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -37,7 +71,74 @@
         <div class="w-full h-full bg-black bg-opacity-40"></div>
     </div>
 
+    <div x-show="message.length"
+         class="fixed bottom-8 left-8 px-4 py-2 text-green-900 bg-green-100">
+        <span x-text="message"></span>
+    </div>
+
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/2.3.0/alpine-ie11.min.js" integrity="sha512-Atu8sttM7mNNMon28+GHxLdz4Xo2APm1WVHwiLW9gW4bmHpHc/E2IbXrj98SmefTmbqbUTOztKl5PDPiu0LD/A==" crossorigin="anonymous"></script>
+<script>
+    function form() {
+        return {
+            subscription: '',
+            error: '',
+            message: '',
+            loading: false,
+
+            submitForm() {
+                if (this.loading) return
+
+                this.loading = true
+
+                if (this.notEmpty() && this.isEmail()) {
+                    this.error = ''
+
+                    // Use axios or fetch to submit the form
+                    setTimeout(() => {
+                        this.showSuccess()
+                        this.loading = false
+                        this.subscription = ''
+                        console.log('Success!')
+                    }, 3000)
+                }
+            },
+
+            notEmpty() {
+                if  (!this.subscription.trim().length > 0) {
+                    this.error = 'Email is required.'
+                    this.loading = false
+                    return false
+                }
+
+                return true
+            },
+
+            isEmail() {
+                const regex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+
+                let isValid = regex.test(String(this.subscription).toLowerCase())
+
+                if (!isValid) {
+                    this.loading = false
+                    this.error = 'Email is not valid. Please insert a correct email.'
+                    return false
+                }
+
+                return true
+            },
+
+            showSuccess() {
+                this.message = 'Your email has registered successfully.'
+
+                setTimeout(() => {
+                    this.message = ''
+                }, 5000)
+            }
+        }
+    }
+</script>
 </body>
 </html>
